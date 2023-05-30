@@ -1,6 +1,7 @@
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from random import randint
+import time
 
 class Client(DatagramProtocol):
     def __init__(self, host, port):
@@ -20,12 +21,20 @@ class Client(DatagramProtocol):
     # O cliente recebe o datagram do server com todos os outros clientes
     def datagramReceived(self, datagram, addr):
         datagram = datagram.decode('utf-8')
-
+       
         # o cliente deve escolher um server para se conectar
         if addr == self.server:
-            print("Choose a client from these\n", datagram)
-            self.address = input("Write host:"),int(input("Write port:"))
-            reactor.callInThread(self.send_message)
+            if(len(datagram) == 0 or datagram == str(self.id)):
+                print("No one is online")
+                print("Press any key to search again:")
+                input()
+                print("Searching...")
+                time.sleep(2)
+                reactor.callInThread(self.startProtocol)
+            else:
+                print(f"(You: {self.id}) Choose a client from these:\n{datagram}")
+                self.address = input("Write host:"),int(input("Write port:"))
+                reactor.callInThread(self.send_message)
         else:
             print(addr, ":", datagram)
     
