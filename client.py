@@ -10,7 +10,7 @@ class Client(DatagramProtocol):
 
         self.id = host, port
         self.address = None
-        self.server = '127.0.0.1',9999
+        self.server = '127.0.0.1',8888
         print("Working on id:",self.id)
 
     # Quando o cliente eh iniciado, startamos o nosso protocolo e dizemos pro server que o cliente
