@@ -3,15 +3,12 @@ from __future__ import print_function
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
+import time
 
 class ServerProtocol(DatagramProtocol):
     def __init__ (self):
-        self.myClients = set()
         self.allClients = set()
         self.servers = set()
-        
-        self.myClients.add("adrIP")
-        self.myClients.add("testIP")
 
 
     def startProtocol(self):
@@ -26,33 +23,56 @@ class ServerProtocol(DatagramProtocol):
     def datagramReceived(self, datagram, addr):
         datagram = datagram.decode("utf-8")
         # se o server recebe o ready do nosso cliente, todos os outros clientes sao adicionados em addresses
-        if datagram == "ready":
+        if datagram == "READY":
+            print("aAa")
+
+            # adiciona o cliente "inicial" na "base de dados"
+            insertText = "INSERT_CLIENTS_DATA " + str(addr)
+            self.transport.write(insertText.encode("utf-8"), ("228.0.0.1", 9999))
+
             # send message to distributed servers
             self.transport.write(b"REQUEST_CLIENTS_DATA", ("228.0.0.1", 9999))
+
+            reactor.callInThread(self.awserClient, addr)
             
             
         # response contaning the clients    
         elif datagram.startswith('RESPONSE_CLIENTS_DATA'):
+            print("cCc")
+
             response = datagram[22:]
-            # address_list = datagram.split("\n")
-            
-            # self.allClients.update(address_list)
-            
-            # print(self.allClients)
+            address_list = datagram.split("\n")
             print(response)
             
+            self.allClients.update(address_list)
+            
+            # print(self.allClients)
+
+    def awserClient(self, addr):
+        # waits all servers responses
+        time.sleep(2)
+
+        response = "\n".join(str(item) for item in self.allClients)
+
+        # returns to first client
+        self.transport.write(response.encode("utf-8"), addr)
+
+
+
  
 # Actualy a handler for multicast 
 class DistributedServerProtocol(DatagramProtocol):
     def __init__ (self):
-        return
-    
+        self.myClients = set() 
+        self.myServers = set()   
     
     def startProtocol(self):
         self.transport.joinGroup('228.0.0.1')
 
     def datagramReceived(self, datagram, address):
-        if datagram == b'REQUEST_CLIENTS_DATA':
+        datagram = datagram.decode("utf-8")
+
+        if datagram == 'REQUEST_CLIENTS_DATA':
             # Process the request for client data
             client_data = self.collect_client_data()
             
@@ -61,10 +81,21 @@ class DistributedServerProtocol(DatagramProtocol):
             # Send the client data response back to the main server
             self.transport.write(client_data.encode("utf-8"), address)
 
+        elif datagram.startswith('INSERT_CLIENTS_DATA'):
+            datagram = datagram[20:]
+
+            self.myClients.add(eval(datagram))
+
+            print("distributed clients: ",self.myClients)
+
+
     def collect_client_data(self):
         # Perform the necessary logic to gather the client data
         # Return the client data as a string
-        client_data = "RESPONSE_CLIENTS_DATA\nClient 2"
+        # header:
+        client_data = "RESPONSE_CLIENTS_DATA\n"
+        # content: (myclients stringified)
+        client_data += "\n".join([str(x) for x in self.myClients])
 
         return client_data
 
