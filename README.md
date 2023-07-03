@@ -36,3 +36,12 @@ Serão considerados para avaliação:
 
 ## Membros
 - Eduardo Vinicius Barbosa Rossi, NUSP: 10716887
+
+# Implementação
+
+## Funcionalidades
+
+- server1adrio.py: Servidor
+- client.py: Cliente
+
+O restante dos arquivos são "inuteis" - apagar posteriormente.
