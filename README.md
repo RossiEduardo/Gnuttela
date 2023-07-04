@@ -82,3 +82,7 @@ Desse modo, é exibido na tela desse único cliente que não há outros usuário
 Nesse sentido, será solicitado que o cliente insira o host (ip) do cliente no qual ele deseja se conectar, pedindo a porta do cliente alvo logo em seguida. Nisso, quando os dois clientes entrarem com as informações um do outro, eles estarão conectados em uma conexão peer-to-peer, sem a necessidade dos servidores. Agora, eles poderão enviar mensagens de texto um para o outro via entrada no terminal.
 
 Nesse ponto, o usuário pode sair do chat digitando $EXIT$ (no campo da mensagem), saindo do campo P2P e voltando para a parte principal, onde poderá visualizar os usuários conectados na rede. Seguindo essa linha, se o usuário digitar $QUIT$ no campo do host, ele irá finalizar o programa, saindo da lista de usuários online.
+
+## Apresentação
+
+[![Vídeo de Apresentação](https://img.youtube.com/vi/SoLleqpqE2w/0.jpg)](https://www.youtube.com/watch?v=SoLleqpqE2w)
