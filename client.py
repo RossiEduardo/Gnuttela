@@ -33,20 +33,40 @@ class Client(DatagramProtocol):
                 reactor.callInThread(self.startProtocol)
             else:
                 print(f"(You: {self.id}) Choose a client from these:\n{datagram}")
-                self.address = input("Write host:"),int(input("Write port:"))
+
+                host = input("Write host: ")
+                if host == 'QUIT':
+                    self.transport.write("QUIT_CLIENT".encode('utf-8'), self.server)
+                    reactor.stop()
+                    return
+                elif host == '':
+                    self.transport.write("READY".encode("utf-8"), self.server)
+                    return
+
+
+                port = int(input("Write port: "))
+                self.address = host, port
                 reactor.callInThread(self.send_message)
         else:
             print(addr, ":", datagram)
     
     def send_message(self):
         while True:
-            self.transport.write(input(":::").encode('utf-8'), self.address)
+            msg = input(":::")
+
+            if msg == 'EXIT':
+                self.transport.write("RETURN".encode('utf-8'), self.server)
+                break
+
+            else:    
+                self.transport.write(msg.encode('utf-8'), self.address)
 
 if __name__ == '__main__':
-    port = randint(1000,5000) #esse random eh necessario para que nao tenhamos dois clientes numa mesma porta
+    port = randint(2000,5000) #esse random eh necessario para que nao tenhamos dois clientes numa mesma porta
 
     # serverPort = int( input("PORTA DO SERVER: ") )
     serverPort = choice([8000, 8001, 8002])
+    # serverPort = choice([8000, 8001])
 
     reactor.listenUDP(port, Client('localhost', port, serverPort))
     reactor.run()
